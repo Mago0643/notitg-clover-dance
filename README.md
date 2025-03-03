@@ -80,6 +80,6 @@ If you're making modfiles, and don't want to clover dances at your file, Just ca
 ## CREDITS
 [Undertale Yellow](https://gamejolt.com/games/UndertaleYellow/136925) by Team Undertale Yellow
 
-[NotITG](https://www.noti.tg) by Taro
+[NotITG](https://www.noti.tg) by TaroNuke & HeySora
 
 Me - code
