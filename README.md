@@ -58,8 +58,6 @@ Here's an example (this can be different with your file):
 
 That's it! Now launch the game and enjoy!
 
-Also, you can set FailOverlay to Clover dead *(yes, really)* by pressing Action5 *(default is 5, not numpad)* Button in Main Menu.
-
 List of Files After Installation:
 
 ```
@@ -73,6 +71,11 @@ Screens/
             ├── default.xml
             └── ok.gif
 ```
+
+# Info
+You you can set FailOverlay to Clover dead *(yes, really)* by pressing Action5 *(default is 5, not numpad)* Button in Main Menu.
+
+If you're making modfiles, and don't want to clover dances at your file, Just call [`MESSAGEMAN:Broadcast`](https://craftedcart.gitlab.io/notitg_docs/lua_api/message_manager.html#MessageManager.Broadcast)`('CloverDead')`, It hides them.
 
 ## CREDITS
 [Undertale Yellow](https://gamejolt.com/games/UndertaleYellow/136925) by Team Undertale Yellow
