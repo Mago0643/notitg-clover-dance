@@ -29,7 +29,7 @@ Here's an example:
     <children>
         <!-- Feel free to add more overlays here -->
         <Layer File="Aft" />
-		<Layer File="Death" />
+				<Layer File="Death" />
         <Layer File="Console"/>
         <Layer File="ViewGC" />
         <Layer File="Overlay" /> <! -- Add it like this --> 
@@ -76,6 +76,8 @@ Screens/
 You you can set FailOverlay to Clover dead *(yes, really)* by pressing Action5 *(default is 5, not numpad)* Button in Main Menu.
 
 If you're making modfiles, and don't want to clover dances at your file, Just call [`MESSAGEMAN:Broadcast`](https://craftedcart.gitlab.io/notitg_docs/lua_api/message_manager.html#MessageManager.Broadcast)`('CloverDead')`, It hides them.
+
+If you want to make clover always bouncy, Press Action8 *(defaults to 8, not numpad)* Button in any screen.
 
 ## CREDITS
 [Undertale Yellow](https://gamejolt.com/games/UndertaleYellow/136925) by Team Undertale Yellow
