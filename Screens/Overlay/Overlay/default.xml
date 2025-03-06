@@ -1,58 +1,71 @@
-<ActorFrame Condition="FUCK_EXE;"><children>
+<ActorFrame Condition="FUCK_EXE" OnCommand="%function(self) self:GetChild('LastScreenID'):aux(GAMESTATE:GetScreenID()) end"
+StepP1Action8PressMessageCommand = "%function(self)
+	local clover = self:GetChild('t_clover_dance');
+	clover:aux(clover:getaux() == 0 and 1 or 0)
+end"
+UpdateCommand="%
+	function(self)
+		local clover = self:GetChild('t_clover_dance');
+		--local tDebug = self:GetChild('DebugText');
+		local isPlaying = GAMESTATE:GetScreenID() == 573555;
+		-- stolen from openitg source code
+		local fDiv = math.max(1, math.floor( (GAMESTATE:GetCurBPS() * 60 / 2) / 150 ));
+		clover:rate(0.825 / fDiv);
+		clover:hidden(isPlaying and 0 or 1)
+		--tDebug:hidden(isPlaying and 0 or 1)
+		if isPlaying then
+			local song = GAMESTATE:GetCurrentSong();
+			if song then
+				local preview_start = song:GetSampleStartSeconds();
+				local preview_end = preview_start + song:GetSampleLengthSeconds();
+				local time = GAMESTATE:GetSongTime();
+
+				-- if it is special part, make them bouncy???
+				if (time >= preview_start and preview_end > time) or clover:getaux() == 1 then
+					local fIn = 1 - (1 - math.sin(math.pi * (GAMESTATE:GetSongBeat() % 1))) ^ 2
+					local x = 4 - (fIn * 2)
+					local y = 1.25 + (fIn * 0.75)
+
+					clover:GetShader():uniform1f('strength', (1-fIn) * 0.75);
+					clover:zoomx( x );
+					clover:zoomy( y );
+				else
+					clover:GetShader():uniform1f('strength', 0);
+					clover:zoom(2);
+				end
+			end
+		else
+			clover:GetShader():uniform1f('strength', 0);
+			clover:diffusealpha(0.8)
+		end
+		self:GetChild('LastScreenID'):aux(GAMESTATE:GetScreenID());
+	end
+"><children>
+	<Layer Name = "LastScreenID" Type = "Actor" InitCommand = "hidden,1;" />
+	<Layer Name = "" />
   <Layer
-		File="c_dance_final.gif"
+		File="c_dance_final (1).gif"
 		Name = "t_clover_dance"
 		Frag = "bloom.frag"
 		InitCommand="%function(self)
-			t_clover_dance = this;
-
 			self:texturefiltering(false)
 			self:effectclock('beat')
 			self:zoom(2);
 
 			self:x(SCREEN_CENTER_X);
-			self:y(SCREEN_HEIGHT - 50);
-
-			-- he............
-      math.randomseed(os.time());
+			self:y(SCREEN_HEIGHT - 20);
 			self:diffusealpha(0.8)
-			-- last beat hit
-			self:aux(-1);
-		end"
-    UpdateCommand="%function(self)
-			local isPlaying = GAMESTATE:GetScreenID() == 573555;
-			-- stolen from openitg source code
-			local fDiv = math.max(1, math.floor( (GAMESTATE:GetCurBPS() * 60 / 2) / 150 ));
-			self:rate(0.825 / fDiv);
 
-			self:hidden(isPlaying and 0 or 1);
-			
-			if isPlaying then
-				self:y(SCREEN_HEIGHT - 50);
-				local song = GAMESTATE:GetCurrentSong();
-				if song then
-					local preview_start = song:GetSampleStartSeconds();
-					local preview_end = preview_start + song:GetSampleLengthSeconds();
-					local time = GAMESTATE:GetSongTime();
-
-					-- if it is special part, make them bouncy???
-					if time >= preview_start and preview_end > time then
-						self:GetShader():uniform1f('strength', (1-(GAMESTATE:GetSongBeat() % 1)) / 2 );
-						local x = 2^( -10 * ( GAMESTATE:GetSongBeat() % 1 ) );
-						self:zoomx( 2 + ( x * 2 ) );
-						self:zoomy( 2 - ( x / 2 ) );
-					else
-						self:GetShader():uniform1f('strength', 0);
-						self:zoom(2);
-					end
-				end
-			else
-				self:GetShader():uniform1f('strength', 0);
-				self:diffusealpha(0.8)
-			end
+			self:aux(0);
+			self:valign(1);
 		end"
-		CloverDeadMessageCommand="%function(self)
-			self:diffusealpha(0)
-		end"
+		CloverDeadMessageCommand="diffusealpha,0"
+	/>
+	<Layer
+		Type = "BitmapText"
+		Name = "DebugText"
+		Text = ""
+		Font = "_eurostile outline"
+		InitCommand = "xy,SCREEN_CENTER_X,50;diffusealpha,0.9;zoom,0.5"
 	/>
 </children></ActorFrame>
