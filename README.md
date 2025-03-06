@@ -29,7 +29,7 @@ Here's an example:
     <children>
         <!-- Feel free to add more overlays here -->
         <Layer File="Aft" />
-				<Layer File="Death" />
+	<Layer File="Death" />
         <Layer File="Console"/>
         <Layer File="ViewGC" />
         <Layer File="Overlay" /> <! -- Add it like this --> 
