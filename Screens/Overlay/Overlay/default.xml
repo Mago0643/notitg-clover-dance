@@ -1,14 +1,20 @@
-<ActorFrame Condition="FUCK_EXE" OnCommand="%function(self) self:GetChild('LastScreenID'):aux(GAMESTATE:GetScreenID()) end"
+<ActorFrame Condition="FUCK_EXE" OnCommand="%function(self) self:GetChild('PublicVars'):aux(GAMESTATE:GetScreenID()) end"
 StepP1Action8PressMessageCommand = "%function(self)
 	local clover = self:GetChild('t_clover_dance');
 	clover:aux(clover:getaux() == 0 and 1 or 0)
 end"
 UpdateCommand="%
 	function(self)
+		-- b -> a
+		local function lerp(a, b, ratio)
+			return a + ratio * (b - a);
+		end
 		local clover = self:GetChild('t_clover_dance');
+		local vars = self:GetChild('PublicVars');
+		local shad = clover:GetShader();
 		--local tDebug = self:GetChild('DebugText');
 		local isPlaying = GAMESTATE:GetScreenID() == 573555;
-		-- stolen from openitg source code
+		-- Max 600 BPM speed i think?
 		local fDiv = math.max(1, (GAMESTATE:GetCurBPS() * 60 / 4) / 150);
 		clover:rate(0.825 / fDiv);
 		clover:hidden(isPlaying and 0 or 1)
@@ -26,23 +32,30 @@ UpdateCommand="%
 					local x = 4 - (fIn * 2)
 					local y = 1.25 + (fIn * 0.75)
 
-					clover:GetShader():uniform1f('strength', (1-fIn) * 0.75);
+					shad:uniform1f('strength', (1-fIn) * 0.75);
 					clover:zoomx( x );
 					clover:zoomy( y );
+					vars:rotationx( (1-fIn) * 0.75 );
 				else
-					clover:GetShader():uniform1f('strength', 0);
-					clover:zoom(2);
+					local lerpSpeed = math.exp(-(GAMESTATE:GetSongTime() - vars:GetZ()) * 10);
+					shad:uniform1f('strength', lerp(0, vars:GetRotationX(), lerpSpeed) );
+					vars:rotationx( lerp(0, vars:GetRotationX(), lerpSpeed) );
+					clover:zoomx( lerp(2, vars:GetX(), lerpSpeed) );
+					clover:zoomy( lerp(2, vars:GetY(), lerpSpeed) );
 				end
 			end
 		else
 			clover:GetShader():uniform1f('strength', 0);
 			clover:diffusealpha(0.8)
 		end
-		self:GetChild('LastScreenID'):aux(GAMESTATE:GetScreenID());
+		-- this is not for visual thing!!
+		vars:xy( clover:GetZoomX(), clover:GetZoomY() );
+		vars:aux(GAMESTATE:GetScreenID());
+		vars:z(GAMESTATE:GetSongTime());
 	end
 "><children>
-	<Layer Name = "LastScreenID" Type = "Actor" InitCommand = "hidden,1;" />
-	<Layer Name = "" />
+	<!-- x: clover's x zoom, y: clover's y zoom, z: last time, aux: last screen id, x rotation: shader power -->
+	<Layer Name = "PublicVars" Type = "Actor" InitCommand = "hidden,1;xy,2,2;rotationx,0;z,0;" />
   <Layer
 		File="c_dance_final (1).gif"
 		Name = "t_clover_dance"
