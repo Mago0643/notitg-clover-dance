@@ -9,7 +9,7 @@ UpdateCommand="%
 		--local tDebug = self:GetChild('DebugText');
 		local isPlaying = GAMESTATE:GetScreenID() == 573555;
 		-- stolen from openitg source code
-		local fDiv = math.max(1, math.floor( (GAMESTATE:GetCurBPS() * 60 / 2) / 150 ));
+		local fDiv = math.max(1, (GAMESTATE:GetCurBPS() * 60 / 4) / 150);
 		clover:rate(0.825 / fDiv);
 		clover:hidden(isPlaying and 0 or 1)
 		--tDebug:hidden(isPlaying and 0 or 1)
@@ -21,7 +21,7 @@ UpdateCommand="%
 				local time = GAMESTATE:GetSongTime();
 
 				-- if it is special part, make them bouncy???
-				if (time >= preview_start and preview_end > time) or clover:getaux() == 1 then
+				if ((time >= preview_start and preview_end > time) or clover:getaux() == 1) and GAMESTATE:GetSongBeat() >= 0 then
 					local fIn = 1 - (1 - math.sin(math.pi * (GAMESTATE:GetSongBeat() % 1))) ^ 2
 					local x = 4 - (fIn * 2)
 					local y = 1.25 + (fIn * 0.75)
