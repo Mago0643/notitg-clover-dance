@@ -39,9 +39,9 @@ UpdateCommand="%
 				else
 					local lerpSpeed = math.exp(-(GAMESTATE:GetSongTime() - vars:GetZ()) * 10);
 					shad:uniform1f('strength', lerp(0, vars:GetRotationX(), lerpSpeed) );
-					vars:rotationx( lerp(0, vars:GetRotationX(), lerpSpeed) );
-					clover:zoomx( lerp(2, vars:GetX(), lerpSpeed) );
-					clover:zoomy( lerp(2, vars:GetY(), lerpSpeed) );
+					vars:rotationx( math.max(lerp(0, vars:GetRotationX(), lerpSpeed), 0) );
+					clover:zoomx( math.max(lerp(2, vars:GetX(), lerpSpeed), 2) );
+					clover:zoomy( math.max(lerp(2, vars:GetY(), lerpSpeed), 2) );
 				end
 			end
 		else
