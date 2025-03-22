@@ -3,6 +3,10 @@ StepP1Action8PressMessageCommand = "%function(self)
 	local clover = self:GetChild('t_clover_dance');
 	clover:aux(clover:getaux() == 0 and 1 or 0)
 end"
+Clover_PowerDanceMessageCommand = "%function(self)
+	local p = self:GetChild('PublicVars');
+	p:rotationy(p:GetRotationY() == 0 and 1 or 0);
+end"
 UpdateCommand="%
 	function(self)
 		-- b -> a
@@ -11,12 +15,16 @@ UpdateCommand="%
 		end
 		local clover = self:GetChild('t_clover_dance');
 		local vars = self:GetChild('PublicVars');
+		local danceRate = GAMESTATE:GetEnv('clover_dancerate');
+		if not danceRate then danceRate = 1 end
+		if type(danceRate) == 'string' then danceRate = tonumber(danceRate); end
 		local shad = clover:GetShader();
+		local is_clover_day = DayOfMonth() == 16 and MonthOfYear() == 3;
 		--local tDebug = self:GetChild('DebugText');
 		local isPlaying = GAMESTATE:GetScreenID() == 573555;
 		-- Max 600 BPM speed i think?
 		local fDiv = math.max(1, (GAMESTATE:GetCurBPS() * 60 / 4) / 150);
-		clover:rate(0.825 / fDiv);
+		clover:rate(0.825 / fDiv * danceRate);
 		clover:hidden(isPlaying and 0 or 1)
 		--tDebug:hidden(isPlaying and 0 or 1)
 		if isPlaying then
@@ -27,7 +35,7 @@ UpdateCommand="%
 				local time = GAMESTATE:GetSongTime();
 
 				-- if it is special part, make them bouncy???
-				if ((time >= preview_start and preview_end > time) or clover:getaux() == 1) and GAMESTATE:GetSongBeat() >= 0 then
+				if ((time >= preview_start and preview_end > time) or clover:getaux() == 1 or vars:GetRotationY() == 1) and GAMESTATE:GetSongBeat() >= 0 then
 					local fIn = 1 - (1 - math.sin(math.pi * (GAMESTATE:GetSongBeat() % 1))) ^ 2
 					local x = 4 - (fIn * 2)
 					local y = 1.25 + (fIn * 0.75)
@@ -39,14 +47,20 @@ UpdateCommand="%
 				else
 					local lerpSpeed = math.exp(-(GAMESTATE:GetSongTime() - vars:GetZ()) * 10);
 					shad:uniform1f('strength', lerp(0, vars:GetRotationX(), lerpSpeed) );
-					vars:rotationx( math.max(lerp(0, vars:GetRotationX(), lerpSpeed), 0) );
-					clover:zoomx( math.max(lerp(2, vars:GetX(), lerpSpeed), 2) );
-					clover:zoomy( math.max(lerp(2, vars:GetY(), lerpSpeed), 2) );
+					vars:rotationx( math.min(math.max(lerp(0, vars:GetRotationX(), lerpSpeed), 0), 1) );
+					clover:zoomx( math.min(math.max(lerp(2, vars:GetX(), lerpSpeed), 2), 4) );
+					clover:zoomy( math.min(math.max(lerp(2, vars:GetY(), lerpSpeed), 2), 4) );
 				end
 			end
 		else
 			clover:GetShader():uniform1f('strength', 0);
-			clover:diffusealpha(0.8)
+			clover:zoomx(2);
+			clover:zoomy(2);
+			shad:uniform1f('strength', 0);
+			vars:rotationx(0);
+			clover:diffusealpha(0.8);
+			vars:rotationy(0);
+			GAMESTATE:SetEnv('clover_dancerate', '1');
 		end
 		-- this is not for visual thing!!
 		vars:xy( clover:GetZoomX(), clover:GetZoomY() );
@@ -54,7 +68,7 @@ UpdateCommand="%
 		vars:z(GAMESTATE:GetSongTime());
 	end
 "><children>
-	<!-- x: clover's x zoom, y: clover's y zoom, z: last time, aux: last screen id, x rotation: shader power -->
+	<!-- x: clover's x zoom, y: clover's y zoom, z: last time, aux: last screen id, x rotation: shader power, y rotation: powered dance -->
 	<Layer Name = "PublicVars" Type = "Actor" InitCommand = "hidden,1;xy,2,2;rotationx,0;z,0;" />
   <Layer
 		File="c_dance_final (1).gif"
@@ -71,9 +85,14 @@ UpdateCommand="%
 
 			self:aux(0);
 			self:valign(1);
+			GAMESTATE:SetEnv('clover_dancerate', '1');
+			for i,v in ipairs(GAMESTATE:Env()) do
+				print(v);
+			end
 		end"
 		CloverDeadMessageCommand="diffusealpha,0"
 	/>
+	<!-- Place Birthday Table here for the clover day :) -->
 	<Layer
 		Type = "BitmapText"
 		Name = "DebugText"
